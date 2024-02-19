@@ -1,0 +1,87 @@
+{{ block "index" . }}
+<!doctype html>
+<html lang="en">
+  <head>
+    <title></title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="css/styles.css" rel="stylesheet" />
+    <script
+      src="https://unpkg.com/htmx.org@1.9.10"
+      integrity="sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC"
+      crossorigin="anonymous"
+    ></script>
+    <script src="script/index.js"></script>
+  </head>
+  <body>
+    <div id="content">{{template "form" .Form}} {{template "lists" .Data}}</div>
+  </body>
+</html>
+{{end}} {{ block "form" . }}
+
+<form hx-swap="outerHTML" class="form" hx-post="/contacts">
+  <div>
+    <label for="name">Name</label>
+    <input
+      type="text"
+      name="name"
+      id="name"
+      {{if
+      .Values.name}}
+      value="{{.Values.name}}"
+      {{else}}
+      value=""
+      {{end}}
+    />
+  </div>
+  <div>
+    <label for="email">Email</label>
+    <input
+      type="text"
+      name="email"
+      id="email"
+      {{if
+      .Values.email}}
+      value="{{.Values.email}}"
+      {{else}}
+      value=""
+      {{end}}
+    />
+  </div>
+  {{if .Errors.email}}
+  <div>
+    <p class="error">{{.Errors.email}}</p>
+  </div>
+  {{end}}
+  <button type="submit">Submit</button>
+</form>
+{{end}} {{ block "lists". }}
+
+<h2 style="text-align: center; margin-top: 3rem">List Of Created</h2>
+<div class="lists" id="lists">
+  {{range .Contacts}} {{template "list" .}} {{end}}
+</div>
+
+{{end}} {{ block "list" . }}
+
+<div class="list" id="list-{{.Id}}">
+  <p>Name: {{.Name}}</p>
+  <p>Email: {{.Email}}</p>
+  <div
+    style="cursor: pointer"
+    hx-delete="/contacts/{{.Id}}"
+    hx-indicator="#ci-{{.Id}}"
+    hx-swap="outerHTML swap:500ms"
+    hx-target="#list-{{.Id}}"
+  >
+    <img src="asset/delete.svg" width="14px" height="14px" alt="delete icon" />
+    <div class="htmx-indicator" style="display: inline" id="ci-{{.Id}}">
+      <img src="asset/bars.svg" width="16px" height="16px" alt="bars" />
+    </div>
+  </div>
+</div>
+{{end}} {{ block "oob-list" . }}
+
+<div id="lists" hx-swap-oob="beforeend">{{template "list" .}}</div>
+
+{{end}}
